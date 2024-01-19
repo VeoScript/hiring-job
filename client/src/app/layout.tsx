@@ -1,11 +1,16 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
+import dynamic from "next/dynamic";
+
 import { Inter } from "next/font/google";
 import "./globals.css";
 
-import { cookies } from "next/headers";
-
 import Providers from "./providers";
-import CheckAuth from "~/components/templates/auth/CheckAuth";
+
+const CheckAuth = dynamic(
+  () => import("~/components/templates/auth/CheckAuth"),
+  { ssr: false }
+);
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -22,9 +27,11 @@ export default function RootLayout({
   const hasAuthCookie = cookies().has(`${process.env.COOKIE_NAME}`);
   return (
     <html lang="en">
-      <CheckAuth hasCookies={hasAuthCookie} />
       <Providers>
-        <body className={inter.className}>{children}</body>
+        <body className={inter.className}>
+          {children}
+          <CheckAuth hasCookies={hasAuthCookie} />
+        </body>
       </Providers>
     </html>
   );

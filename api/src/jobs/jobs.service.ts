@@ -67,6 +67,46 @@ export class JobsService {
     }
   }
 
+  async findAllByEmployer(request: Request) {
+    try {
+      const cookie = request.cookies[process.env.JWT_NAME];
+
+      const cookieData = await this.jwtService.verifyAsync(cookie);
+
+      if (!cookieData) {
+        throw new UnauthorizedException();
+      }
+
+      const jobs = await this.prismaService.job.findMany({
+        where: {
+          userId: cookieData.id,
+        },
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          company_details: true,
+          created_at: true,
+          user: {
+            select: {
+              id: true,
+              account_type: true,
+              name: true,
+              email: true,
+            },
+          },
+        },
+        orderBy: {
+          created_at: 'desc',
+        },
+      });
+
+      return jobs;
+    } catch (e) {
+      throw new UnauthorizedException();
+    }
+  }
+
   async findOne(id: string, request: Request) {
     try {
       const cookie = request.cookies[process.env.JWT_NAME];

@@ -122,11 +122,20 @@ export default function LoginComponent() {
           type="submit"
           className={clsx(
             isLoading && "cursor-wait opacity-50",
-            "w-full p-3 rounded-lg outline-none border border-orange-300 text-white bg-orange-500"
+            "w-full p-3 rounded-lg outline-none border border-orange-300 text-white bg-orange-500 hover:opacity-50"
           )}
         >
           Log in
         </button>
+        <Link
+          href="/"
+          className={clsx(
+            isLoading && "cursor-wait opacity-50",
+            "w-full p-3 rounded-lg outline-none border border-blue-300 text-center text-white bg-blue-500 hover:opacity-50"
+          )}
+        >
+          Start Job Hunting
+        </Link>
         <Link href="/register" className="text-neutral-500 hover:underline">
           Create an account?
         </Link>
