@@ -226,7 +226,7 @@ export default function RegisterComponent(): JSX.Element {
           type="submit"
           className={clsx(
             isLoading && "cursor-wait opacity-50",
-            "w-full p-3 rounded-lg outline-none border border-orange-300 text-white bg-orange-500"
+            "w-full p-3 rounded-lg outline-none border border-orange-300 text-white bg-orange-500 hover:opacity-50"
           )}
         >
           Register

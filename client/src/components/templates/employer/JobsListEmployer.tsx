@@ -5,18 +5,18 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import clsx from "clsx";
 
-import { useGetJobs } from "~/helpers/tanstack/queries/jobs";
+import { useGetEmployer } from "~/helpers/tanstack/queries/jobs";
 import { authStore, jobDetailStore } from "~/helpers/store";
 import { useLogoutMutation } from "~/helpers/tanstack/mutations/auth";
 
-export default function JobsList(): JSX.Element {
+export default function JobsListEmployer(): JSX.Element {
   const router = useRouter();
 
   const [isLoadingLogout, setIsLoadingLogout] = useState<boolean>(false);
 
-  const { data: jobs, isLoading } = useGetJobs();
+  const { data: jobs_employer, isLoading } = useGetEmployer();
 
-  const { isAuth } = authStore();
+  const { isAuth, accountType } = authStore();
   const { setTitle, setDescription, setCompanyDetails } = jobDetailStore();
 
   const logoutMutation = useLogoutMutation();
@@ -42,21 +42,28 @@ export default function JobsList(): JSX.Element {
   );
 
   useMemo(() => {
-    if (jobs) {
+    if (jobs_employer) {
       handleSelectJob(
-        jobs[0]?.title ?? "",
-        jobs[0]?.description ?? "",
-        jobs[0]?.company_details ?? ""
+        jobs_employer[0]?.title ?? "",
+        jobs_employer[0]?.description ?? "",
+        jobs_employer[0]?.company_details ?? ""
       );
     }
 
     return () => {};
-  }, [handleSelectJob, jobs]);
+  }, [handleSelectJob, jobs_employer]);
 
   return (
     <div className="flex flex-col items-start w-full max-w-xl h-full p-5 gap-y-3 overflow-x-hidden overflow-y-auto border-r border-neutral-200">
       <div className="flex flex-row items-center justify-between w-full px-3 py-5">
-        <h1 className="font-bold text-xl">Jobs List</h1>
+        <div className="flex flex-row items-center gap-x-3">
+          <h1 className="font-bold text-xl">Jobs List</h1>
+          {accountType && (
+            <span className="rounded-full px-3 py-1 text-xs text-white bg-orange-500">
+              {accountType}
+            </span>
+          )}
+        </div>
         {!isLoading && (
           <>
             {isAuth ? (
@@ -88,7 +95,7 @@ export default function JobsList(): JSX.Element {
         </div>
       ) : (
         <>
-          {jobs.map(
+          {jobs_employer.map(
             (
               job: {
                 title: string;

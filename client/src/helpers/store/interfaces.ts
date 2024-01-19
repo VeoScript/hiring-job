@@ -1,6 +1,8 @@
 export interface AuthStoreProps {
   isAuth: boolean;
+  accountType: string;
   setIsAuth: (value: boolean) => void;
+  setAccountType: (value: string) => void;
 }
 
 export interface JobDetailsProps {

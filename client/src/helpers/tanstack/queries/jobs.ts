@@ -10,3 +10,13 @@ export const useGetJobs = () => {
     },
   });
 };
+
+export const useGetEmployer = () => {
+  return useQuery({
+    queryKey: ["jobs_employer"],
+    queryFn: async () => {
+      const jobs_employer = await apiInstance.get(`/api/jobs/employer`);
+      return jobs_employer.data;
+    },
+  });
+};

@@ -3,7 +3,9 @@ import * as type from "./interfaces";
 
 export const authStore = create<type.AuthStoreProps>((set) => ({
   isAuth: false,
+  accountType: "",
   setIsAuth: (value: boolean) => set(() => ({ isAuth: value })),
+  setAccountType: (value: string) => set(() => ({ accountType: value })),
 }));
 
 export const jobDetailStore = create<type.JobDetailsProps>((set) => ({

@@ -1,8 +1,10 @@
 "use client";
 
+import ApplyJobModal from "~/components/ui/Modals/ApplyJobModal";
+
 import { jobDetailStore } from "~/helpers/store";
 
-export default function JobDescription(): JSX.Element {
+export default function JobDescriptionApplicant(): JSX.Element {
   const { title, description, company_details } = jobDetailStore();
 
   return (
@@ -18,20 +20,10 @@ export default function JobDescription(): JSX.Element {
                 {company_details}
               </h2>
             </div>
-            <button
-              type="button"
-              className="rounded-lg px-5 py-3 text-sm text-white bg-blue-600 hover:opacity-50"
-            >
-              Apply
-            </button>
+            <ApplyJobModal />
           </div>
           <p className="font-light text-sm text-justify">{description}</p>
-          <button
-            type="button"
-            className="rounded-lg px-5 py-3 text-sm text-white bg-blue-600 hover:opacity-50"
-          >
-            Apply
-          </button>
+          <ApplyJobModal />
         </>
       )}
     </div>
