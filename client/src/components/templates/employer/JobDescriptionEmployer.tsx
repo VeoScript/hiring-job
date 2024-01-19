@@ -2,10 +2,20 @@
 
 import EditJobModal from "~/components/ui/Modals/EditJobModal";
 import NewJobModal from "~/components/ui/Modals/NewJobModal";
+
 import { jobDetailStore } from "~/helpers/store";
+import { useDeleteJobMutation } from "~/helpers/tanstack/mutations/jobs";
 
 export default function JobDescriptionEmployer(): JSX.Element {
-  const { title, description, company_details } = jobDetailStore();
+  const { id, title, description, company_details } = jobDetailStore();
+
+  const deleteJobMutation = useDeleteJobMutation();
+
+  const handleDeleteJob = async () => {
+    await deleteJobMutation.mutateAsync({
+      id,
+    });
+  };
 
   return (
     <div className="flex flex-col items-start w-full h-full p-5 gap-y-5 overflow-x-hidden overflow-y-auto">
@@ -23,6 +33,13 @@ export default function JobDescriptionEmployer(): JSX.Element {
             <div className="flex flex-row items-center gap-x-1">
               <NewJobModal />
               <EditJobModal />
+              <button
+                type="button"
+                className="rounded-lg px-5 py-3 text-sm text-white bg-red-600 hover:opacity-50"
+                onClick={handleDeleteJob}
+              >
+                Delete
+              </button>
             </div>
           </div>
           <p className="font-light text-sm text-justify">{description}</p>

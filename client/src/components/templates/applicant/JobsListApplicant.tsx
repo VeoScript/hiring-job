@@ -17,7 +17,8 @@ export default function JobsListApplicant(): JSX.Element {
   const { data: jobs, isLoading } = useGetJobs();
 
   const { isAuth, accountType } = authStore();
-  const { setTitle, setDescription, setCompanyDetails } = jobDetailStore();
+  const { setId, setTitle, setDescription, setCompanyDetails } =
+    jobDetailStore();
 
   const logoutMutation = useLogoutMutation();
 
@@ -33,17 +34,24 @@ export default function JobsListApplicant(): JSX.Element {
   };
 
   const handleSelectJob = useCallback(
-    (title: string, description: string, company_details: string): void => {
+    (
+      id: string,
+      title: string,
+      description: string,
+      company_details: string
+    ): void => {
+      setId(id);
       setTitle(title);
       setDescription(description);
       setCompanyDetails(company_details);
     },
-    [setCompanyDetails, setDescription, setTitle]
+    [setId, setCompanyDetails, setDescription, setTitle]
   );
 
   useMemo(() => {
     if (jobs) {
       handleSelectJob(
+        jobs[0]?.id ?? "",
         jobs[0]?.title ?? "",
         jobs[0]?.description ?? "",
         jobs[0]?.company_details ?? ""
@@ -98,6 +106,7 @@ export default function JobsListApplicant(): JSX.Element {
           {jobs.map(
             (
               job: {
+                id: string;
                 title: string;
                 description: string;
                 company_details: string;
@@ -110,6 +119,7 @@ export default function JobsListApplicant(): JSX.Element {
                 className="flex flex-col items-start w-full p-5 text-left rounded-lg border border-neutral-300 gap-y-5 hover:opacity-50"
                 onClick={() =>
                   handleSelectJob(
+                    job.id,
                     job.title,
                     job.description,
                     job.company_details

@@ -45,16 +45,12 @@ export const useLoginMutation = () => {
 };
 
 export const useLogoutMutation = () => {
-  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async () => {
       return await apiInstance.post(`/api/auth/logout`);
     },
     onError: (error: any) => {
       console.error("ERROR LOGOUT", error);
-    },
-    onSuccess: async () => {
-      queryClient.resetQueries();
     },
   });
 };

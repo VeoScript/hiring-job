@@ -129,10 +129,7 @@ export default function LoginComponent() {
         </button>
         <Link
           href="/"
-          className={clsx(
-            isLoading && "cursor-wait opacity-50",
-            "w-full p-3 rounded-lg outline-none border border-blue-300 text-center text-white bg-blue-500 hover:opacity-50"
-          )}
+          className="w-full p-3 rounded-lg outline-none border border-blue-300 text-center text-white bg-blue-500 hover:opacity-50"
         >
           Start Job Hunting
         </Link>

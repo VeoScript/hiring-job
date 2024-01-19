@@ -26,7 +26,7 @@ export default function ApplyJobModal() {
     <>
       <button
         type="button"
-        className="rounded-lg px-5 py-3 text-sm text-white bg-blue-600 hover:opacity-50"
+        className="outline-none rounded-lg px-5 py-3 text-sm text-white bg-blue-600 hover:opacity-50"
         onClick={() => {
           if (isAuth) {
             openModal();

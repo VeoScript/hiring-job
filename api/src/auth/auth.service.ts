@@ -20,8 +20,6 @@ export class AuthService {
     try {
       const { account_type, name, email, password } = registerAuthDto;
 
-      console.log('registerAuthDto', registerAuthDto.email);
-
       if (account_type.trim() === '') {
         throw new HttpException('Account type is required', HttpStatus.BAD_REQUEST);
       }

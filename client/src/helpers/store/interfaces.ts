@@ -6,9 +6,11 @@ export interface AuthStoreProps {
 }
 
 export interface JobDetailsProps {
+  id: string;
   title: string;
   description: string;
   company_details: string;
+  setId: (value: string) => void;
   setTitle: (value: string) => void;
   setDescription: (value: string) => void;
   setCompanyDetails: (value: string) => void;
