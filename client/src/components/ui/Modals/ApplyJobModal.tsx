@@ -4,29 +4,65 @@ import { useRouter } from "next/navigation";
 
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment, useState } from "react";
+import { toast } from "sonner";
+import clsx from "clsx";
 
-import { authStore } from "~/helpers/store";
+import { authStore, jobDetailStore } from "~/helpers/store";
+import { useApplyJobMutation } from "~/helpers/tanstack/mutations/apply";
 
-export default function ApplyJobModal() {
+interface ApplyJobModalProps {
+  hasAlreadyApplied: boolean;
+}
+
+export default function ApplyJobModal({
+  hasAlreadyApplied,
+}: ApplyJobModalProps) {
   const router = useRouter();
 
   const { isAuth } = authStore();
+  const { id, title } = jobDetailStore();
 
-  let [isOpen, setIsOpen] = useState(false);
+  let [isOpen, setIsOpen] = useState<boolean>(false);
+  let [isLoading, setIsLoading] = useState<boolean>(false);
 
-  function closeModal() {
+  const applyJobMutation = useApplyJobMutation();
+
+  const closeModal = () => {
     setIsOpen(false);
-  }
+  };
 
-  function openModal() {
+  const openModal = () => {
     setIsOpen(true);
-  }
+  };
+
+  const handleApply = async () => {
+    setIsLoading(true);
+    await applyJobMutation.mutateAsync(
+      {
+        jobId: id,
+      },
+      {
+        onError: () => {
+          setIsLoading(false);
+        },
+        onSuccess: () => {
+          setIsLoading(false);
+          toast.success(`Thank you for applying ${title}.`);
+          closeModal();
+        },
+      }
+    );
+  };
 
   return (
     <>
       <button
+        disabled={hasAlreadyApplied}
         type="button"
-        className="outline-none rounded-lg px-5 py-3 text-sm text-white bg-blue-600 hover:opacity-50"
+        className={clsx(
+          hasAlreadyApplied && "opacity-50 cursor-not-allowed",
+          "outline-none rounded-lg px-5 py-3 text-sm text-white bg-blue-600 hover:opacity-50"
+        )}
         onClick={() => {
           if (isAuth) {
             openModal();
@@ -35,7 +71,7 @@ export default function ApplyJobModal() {
           }
         }}
       >
-        Apply
+        {hasAlreadyApplied ? "Applied" : "Apply"}
       </button>
 
       <Transition appear show={isOpen} as={Fragment}>
@@ -68,22 +104,26 @@ export default function ApplyJobModal() {
                     as="h3"
                     className="text-lg font-medium leading-6 text-gray-900"
                   >
-                    Applying for this job
+                    Applying for this job?
                   </Dialog.Title>
                   <div className="mt-2">
                     <p className="text-sm text-gray-500">
-                      Your payment has been successfully submitted. We’ve sent
-                      you an email with all of the details of your order.
+                      If you apply to this job, you will be forever blah blah
+                      blah.
                     </p>
                   </div>
 
                   <div className="mt-4">
                     <button
+                      disabled={isLoading}
                       type="button"
-                      className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-                      onClick={closeModal}
+                      className={clsx(
+                        isLoading && "opacity-50 cursor-not-allowed",
+                        "inline-flex justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:opacity-50 outline-none"
+                      )}
+                      onClick={handleApply}
                     >
-                      Got it, thanks!
+                      {isLoading ? "Loading..." : "Got it, Confirm!"}
                     </button>
                   </div>
                 </Dialog.Panel>

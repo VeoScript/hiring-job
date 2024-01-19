@@ -2,6 +2,7 @@ import { Injectable, UnauthorizedException, HttpStatus, HttpException } from '@n
 import { Request } from 'express';
 import { CreateJobDto } from './dto/create-job.dto';
 import { UpdateJobDto } from './dto/update-job.dto';
+import { AppliedJobDto } from './dto/apply-job.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 
@@ -15,8 +16,6 @@ export class JobsService {
   async create(createJobDto: CreateJobDto, request: Request) {
     try {
       const { title, description, company_details } = createJobDto;
-
-      console.log('registerAuthDto', createJobDto.company_details);
 
       const cookie = request.cookies[process.env.JWT_NAME];
 
@@ -45,9 +44,80 @@ export class JobsService {
     }
   }
 
-  async findAll() {
+  async apply(appliedJobDto: AppliedJobDto, request: Request) {
+    try {
+      const { jobId } = appliedJobDto;
+
+      const cookie = request.cookies[process.env.JWT_NAME];
+
+      const cookieData = await this.jwtService.verifyAsync(cookie);
+
+      if (!cookieData) throw new UnauthorizedException();
+
+      return await this.prismaService.appliedJob.create({
+        data: {
+          status: 'PENDING',
+          jobId,
+          userId: cookieData.id,
+        },
+      });
+    } catch (e) {
+      throw new HttpException(e, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  async jobDetails(id: string, request: Request) {
+    try {
+      const cookie = request.cookies[process.env.JWT_NAME];
+
+      const cookieData = await this.jwtService.verifyAsync(cookie);
+
+      if (!cookieData) {
+        throw new UnauthorizedException();
+      }
+
+      const job = await this.prismaService.appliedJob.findFirst({
+        where: {
+          jobId: id,
+        },
+        select: {
+          id: true,
+          status: true,
+          created_at: true,
+          job: {
+            select: {
+              id: true,
+              title: true,
+              description: true,
+              company_details: true,
+            },
+          },
+          user: {
+            select: {
+              id: true,
+              account_type: true,
+              name: true,
+              email: true,
+            },
+          },
+        },
+      });
+
+      return job;
+    } catch (e) {
+      throw new UnauthorizedException();
+    }
+  }
+
+  async findAll(search: string) {
     try {
       const jobs = await this.prismaService.job.findMany({
+        where: {
+          title: {
+            contains: search,
+            mode: 'insensitive',
+          },
+        },
         select: {
           id: true,
           title: true,

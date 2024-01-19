@@ -13,8 +13,9 @@ export default function JobsListApplicant(): JSX.Element {
   const router = useRouter();
 
   const [isLoadingLogout, setIsLoadingLogout] = useState<boolean>(false);
+  const [search, setSearch] = useState<string>("");
 
-  const { data: jobs, isLoading } = useGetJobs();
+  const { data: jobs, isLoading } = useGetJobs(search);
 
   const { isAuth, accountType } = authStore();
   const { setId, setTitle, setDescription, setCompanyDetails } =
@@ -96,6 +97,13 @@ export default function JobsListApplicant(): JSX.Element {
             )}
           </>
         )}
+      </div>
+      <div className="flex flex-col items-start w-full gap-y-1">
+        <input
+          type="text"
+          value={search}
+          onChange={(e) => setSearch(e.currentTarget.value)}
+        />
       </div>
       {isLoading ? (
         <div className="flex flex-col items-center w-full">

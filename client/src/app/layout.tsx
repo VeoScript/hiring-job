@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import { Inter } from "next/font/google";
 import "./globals.css";
 
+import { Toaster } from "sonner";
 import Providers from "./providers";
 
 const CheckAuth = dynamic(
@@ -31,6 +32,7 @@ export default function RootLayout({
         <body className={inter.className}>
           {children}
           <CheckAuth hasCookies={hasAuthCookie} />
+          <Toaster />
         </body>
       </Providers>
     </html>
