@@ -20,3 +20,22 @@ export const useApplyJobMutation = () => {
     },
   });
 };
+
+export const useUpdateApplicationStatusMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (_args: { id: string; status: string }) => {
+      return await apiInstance.patch(
+        `/api/jobs/applicant/update-status/${_args.id}?application_status=${_args.status}`
+      );
+    },
+    onError: (error: any) => {
+      console.error("ERROR UPDDATE APPLICATION STATUS", error);
+    },
+    onSuccess: async () => {
+      queryClient.invalidateQueries({
+        queryKey: ["jobs_employer_applicants"],
+      });
+    },
+  });
+};

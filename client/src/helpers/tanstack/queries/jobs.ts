@@ -21,6 +21,18 @@ export const useGetEmployer = () => {
   });
 };
 
+export const useGetEmployerApplicants = () => {
+  return useQuery({
+    queryKey: ["jobs_employer_applicants"],
+    queryFn: async () => {
+      const jobs_employer_applicants = await apiInstance.get(
+        `/api/jobs/employer/applicants`
+      );
+      return jobs_employer_applicants.data;
+    },
+  });
+};
+
 export const useGetJobDetails = (id: string) => {
   return useQuery({
     queryKey: ["job_details", id],
