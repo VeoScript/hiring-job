@@ -101,6 +101,8 @@ export default function JobsListApplicant(): JSX.Element {
       <div className="flex flex-col items-start w-full gap-y-1">
         <input
           type="text"
+          className="w-full p-3 rounded-lg outline-none border bg-white"
+          placeholder="Search jobs"
           value={search}
           onChange={(e) => setSearch(e.currentTarget.value)}
         />

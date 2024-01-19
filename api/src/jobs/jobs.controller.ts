@@ -19,6 +19,15 @@ export class JobsController {
     return this.jobsService.apply(appliedJobDto, request);
   }
 
+  @Patch('applicant/update-status/:id')
+  updateApplicantStatus(
+    @Param('id') id: string,
+    @Query('application_status') application_status: string,
+    @Req() request: Request,
+  ) {
+    return this.jobsService.updateApplicantStatus(id, application_status, request);
+  }
+
   @Get('applicant/:id')
   jobDetails(@Param('id') id: string, @Req() request: Request) {
     return this.jobsService.jobDetails(id, request);
@@ -32,6 +41,11 @@ export class JobsController {
   @Get('employer')
   findAllByEmployer(@Req() request: Request) {
     return this.jobsService.findAllByEmployer(request);
+  }
+
+  @Get('employer/applicants')
+  findAllApplicantsByEmployer(@Req() request: Request) {
+    return this.jobsService.findAllApplicantsByEmployer(request);
   }
 
   @Get(':id')

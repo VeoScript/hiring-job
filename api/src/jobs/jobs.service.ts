@@ -66,6 +66,29 @@ export class JobsService {
     }
   }
 
+  async updateApplicantStatus(id: string, application_status: any, request: Request) {
+    try {
+      const cookie = request.cookies[process.env.JWT_NAME];
+
+      const cookieData = await this.jwtService.verifyAsync(cookie);
+
+      if (!cookieData) throw new UnauthorizedException();
+
+      console.log('status', application_status);
+
+      return await this.prismaService.appliedJob.update({
+        where: {
+          id,
+        },
+        data: {
+          status: application_status,
+        },
+      });
+    } catch (e) {
+      throw new HttpException(e, HttpStatus.BAD_REQUEST);
+    }
+  }
+
   async jobDetails(id: string, request: Request) {
     try {
       const cookie = request.cookies[process.env.JWT_NAME];
@@ -164,6 +187,58 @@ export class JobsService {
           description: true,
           company_details: true,
           created_at: true,
+          user: {
+            select: {
+              id: true,
+              account_type: true,
+              name: true,
+              email: true,
+            },
+          },
+        },
+        orderBy: {
+          created_at: 'desc',
+        },
+      });
+
+      return jobs;
+    } catch (e) {
+      throw new UnauthorizedException();
+    }
+  }
+
+  async findAllApplicantsByEmployer(request: Request) {
+    try {
+      const cookie = request.cookies[process.env.JWT_NAME];
+
+      const cookieData = await this.jwtService.verifyAsync(cookie);
+
+      if (!cookieData) {
+        throw new UnauthorizedException();
+      }
+
+      const jobs = await this.prismaService.appliedJob.findMany({
+        where: {
+          job: {
+            user: {
+              id: {
+                contains: cookieData.id,
+              },
+            },
+          },
+        },
+        select: {
+          id: true,
+          status: true,
+          created_at: true,
+          job: {
+            select: {
+              id: true,
+              title: true,
+              description: true,
+              company_details: true,
+            },
+          },
           user: {
             select: {
               id: true,
