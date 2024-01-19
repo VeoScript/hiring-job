@@ -1,8 +1,9 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Req, Query } from '@nestjs/common';
 import { Request } from 'express';
 import { JobsService } from './jobs.service';
 import { CreateJobDto } from './dto/create-job.dto';
 import { UpdateJobDto } from './dto/update-job.dto';
+import { AppliedJobDto } from './dto/apply-job.dto';
 
 @Controller('api/jobs')
 export class JobsController {
@@ -13,9 +14,19 @@ export class JobsController {
     return this.jobsService.create(createJobDto, request);
   }
 
+  @Post('apply')
+  apply(@Body() appliedJobDto: AppliedJobDto, @Req() request: Request) {
+    return this.jobsService.apply(appliedJobDto, request);
+  }
+
+  @Get('applicant/:id')
+  jobDetails(@Param('id') id: string, @Req() request: Request) {
+    return this.jobsService.jobDetails(id, request);
+  }
+
   @Get()
-  findAll() {
-    return this.jobsService.findAll();
+  findAll(@Query('search') search: string) {
+    return this.jobsService.findAll(search);
   }
 
   @Get('employer')
