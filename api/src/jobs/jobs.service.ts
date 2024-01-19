@@ -16,6 +16,8 @@ export class JobsService {
     try {
       const { title, description, company_details } = createJobDto;
 
+      console.log('registerAuthDto', createJobDto.company_details);
+
       const cookie = request.cookies[process.env.JWT_NAME];
 
       const cookieData = await this.jwtService.verifyAsync(cookie);
@@ -31,7 +33,12 @@ export class JobsService {
         throw new HttpException('Company details is required', HttpStatus.BAD_REQUEST);
 
       return await this.prismaService.job.create({
-        data: createJobDto,
+        data: {
+          title,
+          description,
+          company_details,
+          userId: cookieData.id,
+        },
       });
     } catch (e) {
       throw new HttpException(e, HttpStatus.BAD_REQUEST);

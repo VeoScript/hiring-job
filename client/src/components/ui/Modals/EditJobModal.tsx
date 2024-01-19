@@ -1,32 +1,99 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-
 import { Dialog, Transition } from "@headlessui/react";
-import { Fragment, useState } from "react";
+import { FormEvent, Fragment, useEffect, useState } from "react";
+import clsx from "clsx";
 
-import { authStore } from "~/helpers/store";
+import { createJobValidation } from "~/helpers/hooks/useValidations";
+import { jobDetailStore } from "~/helpers/store";
+import { useUpdateJobMutation } from "~/helpers/tanstack/mutations/jobs";
 
 export default function EditJobModal() {
-  const router = useRouter();
-
-  const { isAuth } = authStore();
-
   let [isOpen, setIsOpen] = useState(false);
 
-  function closeModal() {
-    setIsOpen(false);
-  }
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string>("");
+  const [createJobFormErrors, setCreateJobFormErrors] = useState<any>(null);
 
-  function openModal() {
+  const [title, setTitle] = useState<string>("");
+  const [companyDetails, setCompanyDetails] = useState<string>("");
+  const [description, setDescription] = useState<string>("");
+
+  const {
+    id,
+    title: initialTitle,
+    description: initialDescription,
+    company_details: initialCompanyDetails,
+  } = jobDetailStore();
+
+  const updateJobMutation = useUpdateJobMutation();
+
+  useEffect(() => {
+    setTitle(initialTitle);
+    setCompanyDetails(initialCompanyDetails);
+    setDescription(initialDescription);
+    return () => {};
+  }, [isOpen, initialCompanyDetails, initialDescription, initialTitle]);
+
+  const closeModal = () => {
+    setIsOpen(false);
+    setDefault();
+  };
+
+  const openModal = () => {
     setIsOpen(true);
-  }
+  };
+
+  const setDefault = () => {
+    setIsLoading(false);
+    setError("");
+    setCreateJobFormErrors([]);
+    setTitle("");
+    setCompanyDetails("");
+    setDescription("");
+  };
+
+  const handleEditJob = async (e: FormEvent) => {
+    e.preventDefault();
+    try {
+      await createJobValidation.validate(
+        { title, company_details: companyDetails, description },
+        { abortEarly: false }
+      );
+      setIsLoading(true);
+      await updateJobMutation.mutateAsync(
+        {
+          id,
+          title,
+          company_details: companyDetails,
+          description,
+        },
+        {
+          onSuccess: () => {
+            closeModal();
+          },
+          onError: (error) => {
+            setIsLoading(false);
+            setError(error?.response?.data?.message);
+          },
+        }
+      );
+    } catch (error: any) {
+      if (error?.inner) {
+        const errors: any = {};
+        error.inner.forEach((e: any) => {
+          errors[e.path] = e.message;
+        });
+        setCreateJobFormErrors(errors);
+      }
+    }
+  };
 
   return (
     <>
       <button
         type="button"
-        className="rounded-lg px-5 py-3 text-sm text-white bg-green-600 hover:opacity-50"
+        className="outline-none rounded-lg px-5 py-3 text-sm text-white bg-green-600 hover:opacity-50"
         onClick={openModal}
       >
         Edit
@@ -57,29 +124,94 @@ export default function EditJobModal() {
                 leaveFrom="opacity-100 scale-100"
                 leaveTo="opacity-0 scale-95"
               >
-                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                <Dialog.Panel className="w-full max-w-xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
                   <Dialog.Title
                     as="h3"
                     className="text-lg font-medium leading-6 text-gray-900"
                   >
                     Edit Job
                   </Dialog.Title>
-                  <div className="mt-2">
-                    <p className="text-sm text-gray-500">
-                      Your payment has been successfully submitted. We’ve sent
-                      you an email with all of the details of your order.
-                    </p>
-                  </div>
-
-                  <div className="mt-4">
+                  <form
+                    onSubmit={handleEditJob}
+                    className="flex flex-col items-start w-full mt-5 gap-y-3"
+                  >
+                    <div className="flex flex-col items-start w-full gap-y-1">
+                      <label htmlFor="title" className="ml-1 text-sm">
+                        Job Title
+                      </label>
+                      <input
+                        type="text"
+                        name="title"
+                        id="title"
+                        className="w-full p-3 rounded-lg outline-none border bg-white"
+                        value={title}
+                        onChange={(e) => {
+                          setError("");
+                          setCreateJobFormErrors([]);
+                          setTitle(e.currentTarget.value);
+                        }}
+                      />
+                      {createJobFormErrors && createJobFormErrors.title && (
+                        <span className="ml-2 mt-1 text-xs font-medium text-red-500">
+                          {createJobFormErrors.title}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex flex-col items-start w-full gap-y-1">
+                      <label htmlFor="company_details" className="ml-1 text-sm">
+                        Company Name
+                      </label>
+                      <input
+                        type="text"
+                        name="company_details"
+                        id="company_details"
+                        className="w-full p-3 rounded-lg outline-none border bg-white"
+                        value={companyDetails}
+                        onChange={(e) => {
+                          setError("");
+                          setCreateJobFormErrors([]);
+                          setCompanyDetails(e.currentTarget.value);
+                        }}
+                      />
+                      {createJobFormErrors &&
+                        createJobFormErrors.company_details && (
+                          <span className="ml-2 mt-1 text-xs font-medium text-red-500">
+                            {createJobFormErrors.company_details}
+                          </span>
+                        )}
+                    </div>
+                    <div className="flex flex-col items-start w-full gap-y-1">
+                      <label htmlFor="description" className="ml-1 text-sm">
+                        Job Description
+                      </label>
+                      <textarea
+                        id="description"
+                        className="w-full p-3 rounded-lg outline-none border bg-white"
+                        value={description}
+                        onChange={(e) => {
+                          setError("");
+                          setCreateJobFormErrors([]);
+                          setDescription(e.currentTarget.value);
+                        }}
+                      />
+                      {createJobFormErrors &&
+                        createJobFormErrors.description && (
+                          <span className="ml-2 mt-1 text-xs font-medium text-red-500">
+                            {createJobFormErrors.description}
+                          </span>
+                        )}
+                    </div>
                     <button
-                      type="button"
-                      className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-                      onClick={closeModal}
+                      disabled={isLoading}
+                      type="submit"
+                      className={clsx(
+                        isLoading && "opacity-50 cursor-wait",
+                        "w-full p-3 rounded-lg outline-none border border-green-300 text-white bg-green-500 hover:opacity-50"
+                      )}
                     >
-                      Got it, thanks!
+                      {isLoading ? "Loading..." : "Update"}
                     </button>
-                  </div>
+                  </form>
                 </Dialog.Panel>
               </Transition.Child>
             </div>

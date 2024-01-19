@@ -23,3 +23,9 @@ export const registrationValidation = yup.object({
     .required("Re-type password is required.")
     .oneOf([yup.ref("password")], "Password not matched."),
 });
+
+export const createJobValidation = yup.object({
+  title: yup.string().trim().required("Title is required."),
+  company_details: yup.string().trim().required("Company details is required."),
+  description: yup.string().trim().required("Descriptoin is required."),
+});
